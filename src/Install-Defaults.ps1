@@ -214,6 +214,10 @@ try {
             Remove-Package -Package $ConfigSet.Packages.Remove
         }
 
+        if (($null -ne $ConfigSet.Services.PSObject.Properties['Disable']) -and ($ConfigSet.Services.Disable.Length -gt 0)) {
+            Disable-NamedService -Service $ConfigSet.Services.Disable
+        }
+
         if (($null -ne $ConfigSet.Services.PSObject.Properties['Stop']) -and ($ConfigSet.Services.Stop.Length -gt 0)) {
             Stop-NamedService -Service $ConfigSet.Services.Stop
         }

@@ -257,6 +257,13 @@
     "Services": {
       "type": "object",
       "properties": {
+        "Disable": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Service names to set the startup type to disabled."
+        },
         "Enable": {
           "type": "array",
           "items": {

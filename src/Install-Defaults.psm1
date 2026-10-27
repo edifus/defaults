@@ -840,6 +840,38 @@ function Get-CurrentUserSid {
     return $MyID.Translate([System.Security.Principal.SecurityIdentifier]).toString()
 }
 
+function Disable-NamedService {
+    # Set the startup type of a named service to disabled
+    [CmdletBinding(SupportsShouldProcess = $true)]
+    param ($Service)
+
+    foreach ($Item in $Service) {
+        if ($PSCmdlet.ShouldProcess($Item, "Set-Service")) {
+            try {
+                Get-Service -Name $Item -ErrorAction "Stop" | Set-Service -StartupType "Disabled" -ErrorAction "Stop"
+                Write-LogFile -Message "Disable service: $Item"
+            }
+            catch {
+                # Some services (e.g. WaaSMedicSvc) can't be changed with Set-Service, so set the Start value directly
+                try {
+                    $params = @{
+                        Path        = "HKLM:\SYSTEM\CurrentControlSet\Services\$Item"
+                        Name        = "Start"
+                        Value       = 4
+                        Type        = "DWord"
+                        ErrorAction = "Stop"
+                    }
+                    Set-ItemProperty @params
+                    Write-LogFile -Message "Disable service via registry: $Item"
+                }
+                catch {
+                    Write-LogFile -Message $_.Exception.Message -LogLevel 3
+                }
+            }
+        }
+    }
+}
+
 function Restart-NamedService {
     # Restart a specified service
     [CmdletBinding(SupportsShouldProcess = $true)]
@@ -1269,6 +1301,7 @@ Export-ModuleMember -Function 'Add-Capability',
 'Add-Feature',
 'Copy-File',
 'Copy-RegExe',
+'Disable-NamedService',
 'Get-CurrentUserSid',
 'Get-Model',
 'Get-OSName',

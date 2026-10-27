@@ -109,6 +109,7 @@ function Get-FallbackSchemaMap {
     $map["Services.Stop"] = "Service names to stop."
     $map["Services.Restart"] = "Service names to restart."
     $map["Services.Enable"] = "Service names to set as enabled."
+    $map["Services.Disable"] = "Service names to set the startup type to disabled."
 
     $map["Shortcuts"] = "Shortcut editing operations."
     $map["Shortcuts.Edit"] = "Shortcut files to modify and their target arguments."
@@ -1223,9 +1224,10 @@ function Add-ServicesSection {
     $stopItems = @(Get-PropertyValue -Object $Services -Names @("Stop"))
     $restartItems = @(Get-PropertyValue -Object $Services -Names @("Restart"))
     $enableItems = @(Get-PropertyValue -Object $Services -Names @("Enable"))
+    $disableItems = @(Get-PropertyValue -Object $Services -Names @("Disable"))
     $feature = Get-PropertyValue -Object $Services -Names @("Feature")
 
-    $total = $startItems.Count + $stopItems.Count + $restartItems.Count + $enableItems.Count
+    $total = $startItems.Count + $stopItems.Count + $restartItems.Count + $enableItems.Count + $disableItems.Count
     if (-not [System.String]::IsNullOrWhiteSpace([System.String] $feature)) {
         $total += 1
     }
@@ -1254,6 +1256,7 @@ function Add-ServicesSection {
     [void] $body.Children.Add((New-StringListGroup -Title "Stop" -Items $stopItems -SchemaKey "Services.Stop" -SchemaMap $schemaMap -Theme $theme))
     [void] $body.Children.Add((New-StringListGroup -Title "Restart" -Items $restartItems -SchemaKey "Services.Restart" -SchemaMap $schemaMap -Theme $theme))
     [void] $body.Children.Add((New-StringListGroup -Title "Enable" -Items $enableItems -SchemaKey "Services.Enable" -SchemaMap $schemaMap -Theme $theme))
+    [void] $body.Children.Add((New-StringListGroup -Title "Disable" -Items $disableItems -SchemaKey "Services.Disable" -SchemaMap $schemaMap -Theme $theme))
 
     $card = New-SectionCard -Title "Services" -Description ($schemaMap["Services"]) -Count $total -Content $body -Theme $theme
     [void] $detailsPanel.Children.Add($card)

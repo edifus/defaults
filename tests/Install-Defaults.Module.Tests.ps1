@@ -46,6 +46,7 @@ Describe 'Module Import' {
         $ExportedFunctions = @(
             'Add-Capability', 'Add-Feature',
             'Copy-File', 'Copy-RegExe',
+            'Disable-NamedService',
             'Get-CurrentUserSid', 'Get-Model', 'Get-OSName', 'Get-Platform', 'Get-Symbol',
             'Install-SystemLanguage', 'IsAdministrator',
             'New-Directory',
@@ -316,6 +317,12 @@ Describe 'Service Management Functions' {
 
     It 'Should handle Restart-NamedService with WhatIf' {
         { Restart-NamedService -Service @($TestService) -Confirm:$false -WhatIf } | Should -Not -Throw
+    }
+
+    It 'Should handle Disable-NamedService with WhatIf' {
+        $StartType = (Get-Service -Name $TestService).StartType
+        { Disable-NamedService -Service @($TestService) -Confirm:$false -WhatIf } | Should -Not -Throw
+        (Get-Service -Name $TestService).StartType | Should -Be $StartType
     }
 }
 

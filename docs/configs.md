@@ -123,6 +123,7 @@ For consistency with existing configs and script logic, use lowercase `type`.
 * `Stop` (optional): array of service names.
 * `Start` (optional): array of service names.
 * `Restart` (optional): array of service names.
+* `Disable` (optional): array of service names to set the startup type to disabled. Services that can't be changed with `Set-Service` are disabled by setting the `Start` value under `HKLM:\SYSTEM\CurrentControlSet\Services\<name>` to `4`. Disabling does not stop a running service; add the service to `Stop` as well.
 * `Enable` (optional): array of service names.
 * `Feature` (optional): string gate for role/feature-specific service operations.
 
@@ -179,6 +180,7 @@ Use this structure when creating new configuration files so all expected propert
 		"Edit": []
 	},
 	"Services": {
+		"Disable": [],
 		"Enable": [],
 		"Feature": "",
 		"Restart": [],
