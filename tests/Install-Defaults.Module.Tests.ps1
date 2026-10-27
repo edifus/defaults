@@ -45,7 +45,7 @@ Describe 'Module Import' {
     It 'Should export expected functions' {
         $ExportedFunctions = @(
             'Add-Capability', 'Add-Feature',
-            'Copy-File', 'Copy-RegExe',
+            'ConvertTo-RegExeArgument', 'ConvertTo-RegistryValue', 'Copy-File', 'Copy-RegExe',
             'Get-CurrentUserSid', 'Get-Model', 'Get-OSName', 'Get-Platform', 'Get-Symbol',
             'Install-SystemLanguage', 'IsAdministrator',
             'New-Directory',
@@ -161,6 +161,61 @@ Describe 'Get-Model' {
     It 'Should return a valid model type' {
         $Result = Get-Model
         $Result | Should -BeIn @('Virtual', 'Physical')
+    }
+}
+
+Describe 'ConvertTo-RegistryValue' {
+    It 'Should return a string array for MultiString' {
+        $Result = ConvertTo-RegistryValue -Type 'MultiString' -Value @('One', 'Two')
+        , $Result | Should -BeOfType [System.String[]]
+        $Result | Should -Be @('One', 'Two')
+    }
+
+    It 'Should return a single item string array for a MultiString string value' {
+        $Result = ConvertTo-RegistryValue -Type 'MultiString' -Value 'One'
+        , $Result | Should -BeOfType [System.String[]]
+        $Result.Count | Should -Be 1
+    }
+
+    It 'Should return an Int64 for QWord' {
+        $Result = ConvertTo-RegistryValue -Type 'QWord' -Value 4294967296
+        $Result | Should -BeOfType [System.Int64]
+        $Result | Should -Be 4294967296
+    }
+
+    It 'Should return the value unchanged for <Type>' -ForEach @(
+        @{ Type = 'String'; Value = 'Text' }
+        @{ Type = 'ExpandString'; Value = '%SystemRoot%\System32' }
+        @{ Type = 'DWord'; Value = 1 }
+    ) {
+        ConvertTo-RegistryValue -Type $Type -Value $Value | Should -Be $Value
+    }
+}
+
+Describe 'ConvertTo-RegExeArgument' {
+    It 'Should map <Type> to <RegType>' -ForEach @(
+        @{ Type = 'String'; RegType = 'REG_SZ' }
+        @{ Type = 'ExpandString'; RegType = 'REG_EXPAND_SZ' }
+        @{ Type = 'MultiString'; RegType = 'REG_MULTI_SZ' }
+        @{ Type = 'DWord'; RegType = 'REG_DWORD' }
+        @{ Type = 'Dword'; RegType = 'REG_DWORD' }
+        @{ Type = 'QWord'; RegType = 'REG_QWORD' }
+        @{ Type = 'Binary'; RegType = 'REG_BINARY' }
+    ) {
+        $Result = ConvertTo-RegExeArgument -Type $Type -Value '1'
+        $Result[0] | Should -Be '/t'
+        $Result[1] | Should -Be $RegType
+        $Result[2] | Should -Be '/d'
+    }
+
+    It 'Should join MultiString values with \0' {
+        $Result = ConvertTo-RegExeArgument -Type 'MultiString' -Value @('One', 'Two')
+        $Result[3] | Should -Be 'One\0Two'
+    }
+
+    It 'Should convert Binary decimal byte values to a hex string' {
+        $Result = ConvertTo-RegExeArgument -Type 'Binary' -Value '188 36 0 255'
+        $Result[3] | Should -Be 'BC2400FF'
     }
 }
 

@@ -164,9 +164,13 @@
                 "type": "string",
                 "description": "Registry value type.",
                 "enum": [
-                  "String",
+                  "Binary",
                   "DWord",
-                  "Dword"
+                  "Dword",
+                  "ExpandString",
+                  "MultiString",
+                  "QWord",
+                  "String"
                 ],
                 "examples": [
                   "DWord",
@@ -180,6 +184,13 @@
                   },
                   {
                     "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "MultiString values."
                   }
                 ]
               }
@@ -446,9 +457,12 @@
                 "type": "string",
                 "enum": [
                   "Binary",
-                  "String",
                   "DWord",
-                  "Dword"
+                  "Dword",
+                  "ExpandString",
+                  "MultiString",
+                  "QWord",
+                  "String"
                 ],
                 "description": "Registry value type. Preferred key is \"type\"."
               },
@@ -459,6 +473,13 @@
                   },
                   {
                     "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "MultiString values."
                   }
                 ]
               }

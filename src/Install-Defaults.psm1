@@ -390,6 +390,39 @@ function Set-RegistryOwner {
     }
 }
 
+function ConvertTo-RegistryValue {
+    # Convert a configuration value to the data type expected by Set-ItemProperty
+    param ($Type, $Value)
+
+    switch ($Type) {
+        "Binary" { return , (-split $Value -replace ' ', { [Convert]::ToByte($_, 16) }) }
+        "MultiString" { return , [System.String[]]$Value }
+        "QWord" { return [System.Int64]$Value }
+        default { return $Value }
+    }
+}
+
+function ConvertTo-RegExeArgument {
+    # Convert a registry value type and value to the /t and /d arguments used by reg.exe
+    param ($Type, $Value)
+
+    $RegType = @{
+        "String"       = "REG_SZ"
+        "ExpandString" = "REG_EXPAND_SZ"
+        "MultiString"  = "REG_MULTI_SZ"
+        "DWord"        = "REG_DWORD"
+        "QWord"        = "REG_QWORD"
+        "Binary"       = "REG_BINARY"
+    }[$Type]
+
+    switch ($Type) {
+        "Binary" { $Data = (-split $Value | ForEach-Object { "{0:X2}" -f [System.Byte]$_ }) -join "" }
+        "MultiString" { $Data = $Value -join '\0' }
+        default { $Data = $Value }
+    }
+    return "/t", $RegType, "/d", $Data
+}
+
 function Set-Registry {
     # Set a registry value. Create the target key if it doesn't already exist
     [CmdletBinding(SupportsShouldProcess = $true)]
@@ -420,13 +453,7 @@ function Set-Registry {
 
         if ($PSCmdlet.ShouldProcess("$($Item.path), $($Item.name), $($Item.value)", "Set-ItemProperty")) {
             try {
-                # Convert binary values to byte arrays
-                if ($Item.type -eq "Binary") {
-                    $Value = -split $Item.value -replace ' ', { [Convert]::ToByte($_, 16) }
-                }
-                else {
-                    $Value = $Item.value
-                }
+                $Value = ConvertTo-RegistryValue -Type $Item.type -Value $Item.value
 
                 if ($Item.protected -eq $true) {
                     #  Use reg1.exe to set protected registry values
@@ -436,8 +463,7 @@ function Set-Registry {
                     if ($RegExe) {
                         & $RegExe add ($Item.path -replace "\:", "") `
                             /v $Item.name `
-                            /t $Item.type `
-                            /d $Value `
+                            @(ConvertTo-RegExeArgument -Type $Item.type -Value $Item.value) `
                             /f `
                             /reg:64 `
                             /z
@@ -552,13 +578,7 @@ function Set-DefaultUserProfile {
 
             if ($PSCmdlet.ShouldProcess("$RegPath, $($Item.name), $($Item.value)", "Set-ItemProperty")) {
                 try {
-                    # Convert binary values to byte arrays
-                    if ($Item.type -eq "Binary") {
-                        $Value = -split $Item.value -replace ' ', { [Convert]::ToByte($_, 16) }
-                    }
-                    else {
-                        $Value = $Item.value
-                    }
+                    $Value = ConvertTo-RegistryValue -Type $Item.type -Value $Item.value
 
                     if ($Item.protected -eq $true) {
                         #  Use reg1.exe to set protected registry values
@@ -568,8 +588,7 @@ function Set-DefaultUserProfile {
                         if ($RegExe) {
                             & $RegExe add ($RegPath -replace "\:", "") `
                                 /v $Item.name `
-                                /t $Item.type `
-                                /d $Value `
+                                @(ConvertTo-RegExeArgument -Type $Item.type -Value $Item.value) `
                                 /f `
                                 /reg:64 `
                                 /z
@@ -1268,6 +1287,8 @@ function Set-Shortcut {
 Export-ModuleMember -Function 'Add-Capability',
 'Add-Feature',
 'Copy-File',
+'ConvertTo-RegExeArgument',
+'ConvertTo-RegistryValue',
 'Copy-RegExe',
 'Get-CurrentUserSid',
 'Get-Model',

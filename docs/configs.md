@@ -85,7 +85,7 @@ Both arrays can be empty in schema terms, but should include applicable values f
 * `Set` (required): array of objects with required `name`, `note`, `path`, `protected`, `type`, `value`.
 * `Remove` (optional): array of objects with required `path`, `note`.
 
-`MachineRegistry.Set.type` supports `String`, `DWord`, `Dword`.
+`MachineRegistry.Set.type` supports `Binary`, `DWord`, `Dword`, `ExpandString`, `MultiString`, `QWord`, `String`.
 
 #### `UserRegistry` (required)
 
@@ -95,7 +95,14 @@ Both arrays can be empty in schema terms, but should include applicable values f
 
 For consistency with existing configs and script logic, use lowercase `type`.
 
-`UserRegistry.Set.type` supports `Binary`, `String`, `DWord`, `Dword`.
+`UserRegistry.Set.type` supports `Binary`, `DWord`, `Dword`, `ExpandString`, `MultiString`, `QWord`, `String`.
+
+Value formats by type:
+
+* `Binary` - a string of space-separated decimal byte values, e.g. `"188 36 0 255"`.
+* `MultiString` - an array of strings, e.g. `["One", "Two"]`.
+* `QWord` - an integer.
+* `ExpandString` - a string that can include environment variables, e.g. `"%SystemRoot%\\System32"`.
 
 #### `Features` (optional)
 
