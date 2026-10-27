@@ -67,6 +67,7 @@ To enable editor IntelliSense and validation, include this schema reference in e
 | `Packages` | `object` | No | If included, requires `Remove`. |
 | `Paths` | `object` | No | If included, requires `Remove`. |
 | `Shortcuts` | `object` | No | If included, requires `Edit`. |
+| `ScheduledTasks` | `object` | No | If included, requires `Disable`. |
 | `Services` | `object` | No | Optional service operations. |
 | `Files` | `object` | No | If included, requires `Copy`. |
 
@@ -117,6 +118,10 @@ For consistency with existing configs and script logic, use lowercase `type`.
 #### `Shortcuts` (optional)
 
 * `Edit` (required when section exists): array of objects with required `Path` and `Arguments`.
+
+#### `ScheduledTasks` (optional)
+
+* `Disable` (required when section exists): array of full scheduled task paths starting with `\`, e.g. `\Microsoft\Windows\Defrag\ScheduledDefrag` (written as `"\\Microsoft\\Windows\\Defrag\\ScheduledDefrag"` in JSON).
 
 #### `Services` (optional)
 
@@ -177,6 +182,9 @@ Use this structure when creating new configuration files so all expected propert
 	},
 	"Shortcuts": {
 		"Edit": []
+	},
+	"ScheduledTasks": {
+		"Disable": []
 	},
 	"Services": {
 		"Enable": [],

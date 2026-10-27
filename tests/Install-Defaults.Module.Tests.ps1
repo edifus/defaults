@@ -46,6 +46,7 @@ Describe 'Module Import' {
         $ExportedFunctions = @(
             'Add-Capability', 'Add-Feature',
             'Copy-File', 'Copy-RegExe',
+            'Disable-NamedScheduledTask',
             'Get-CurrentUserSid', 'Get-Model', 'Get-OSName', 'Get-Platform', 'Get-Symbol',
             'Install-SystemLanguage', 'IsAdministrator',
             'New-Directory',
@@ -292,6 +293,23 @@ Describe 'Copy-RegExe' {
         if (Test-Path $Result) {
             Remove-Item -Path $Result -Force -ErrorAction SilentlyContinue
         }
+    }
+}
+
+Describe 'Disable-NamedScheduledTask' {
+    BeforeAll {
+        # Use a task that exists on all Windows versions
+        $TestTask = '\Microsoft\Windows\Defrag\ScheduledDefrag'
+    }
+
+    It 'Should handle Disable-NamedScheduledTask with WhatIf' {
+        $State = (Get-ScheduledTask -TaskPath '\Microsoft\Windows\Defrag\' -TaskName 'ScheduledDefrag').State
+        { Disable-NamedScheduledTask -Task @($TestTask) -Confirm:$false -WhatIf } | Should -Not -Throw
+        (Get-ScheduledTask -TaskPath '\Microsoft\Windows\Defrag\' -TaskName 'ScheduledDefrag').State | Should -Be $State
+    }
+
+    It 'Should not throw for a task that does not exist' {
+        { Disable-NamedScheduledTask -Task @('\PesterTest\DoesNotExist') -Confirm:$false } | Should -Not -Throw
     }
 }
 

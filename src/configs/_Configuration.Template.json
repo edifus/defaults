@@ -39,6 +39,9 @@
     "Shortcuts": {
         "Edit": []
     },
+    "ScheduledTasks": {
+        "Disable": []
+    },
     "Services": {
         "Restart": [],
         "Stop": [],

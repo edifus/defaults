@@ -840,6 +840,30 @@ function Get-CurrentUserSid {
     return $MyID.Translate([System.Security.Principal.SecurityIdentifier]).toString()
 }
 
+function Disable-NamedScheduledTask {
+    # Disable a scheduled task specified by its full path, e.g. \Microsoft\Windows\Defrag\ScheduledDefrag
+    [CmdletBinding(SupportsShouldProcess = $true)]
+    param ($Task)
+
+    foreach ($Item in $Task) {
+        if ($PSCmdlet.ShouldProcess($Item, "Disable-ScheduledTask")) {
+            try {
+                $Index = $Item.LastIndexOf("\")
+                $params = @{
+                    TaskPath    = $Item.Substring(0, $Index + 1)
+                    TaskName    = $Item.Substring($Index + 1)
+                    ErrorAction = "Stop"
+                }
+                Disable-ScheduledTask @params | Out-Null
+                Write-LogFile -Message "Disable scheduled task: $Item"
+            }
+            catch {
+                Write-LogFile -Message $_.Exception.Message -LogLevel 3
+            }
+        }
+    }
+}
+
 function Restart-NamedService {
     # Restart a specified service
     [CmdletBinding(SupportsShouldProcess = $true)]
@@ -1269,6 +1293,7 @@ Export-ModuleMember -Function 'Add-Capability',
 'Add-Feature',
 'Copy-File',
 'Copy-RegExe',
+'Disable-NamedScheduledTask',
 'Get-CurrentUserSid',
 'Get-Model',
 'Get-OSName',

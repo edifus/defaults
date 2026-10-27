@@ -254,6 +254,29 @@
       ],
       "description": "Path operations."
     },
+    "ScheduledTasks": {
+      "type": "object",
+      "properties": {
+        "Disable": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^\\\\"
+          },
+          "description": "Full paths of scheduled tasks to disable.",
+          "examples": [
+            [
+              "\\Microsoft\\Windows\\Defrag\\ScheduledDefrag"
+            ]
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "Disable"
+      ],
+      "description": "Scheduled task operations."
+    },
     "Services": {
       "type": "object",
       "properties": {

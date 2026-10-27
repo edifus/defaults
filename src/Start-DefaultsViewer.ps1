@@ -103,6 +103,9 @@ function Get-FallbackSchemaMap {
     $map["Packages"] = "Provisioned package operations."
     $map["Packages.Remove"] = "Provisioned packages to remove."
 
+    $map["ScheduledTasks"] = "Scheduled task operations."
+    $map["ScheduledTasks.Disable"] = "Full paths of scheduled tasks to disable."
+
     $map["Services"] = "Service control operations and optional role or feature gating."
     $map["Services.Feature"] = "Optional feature or role gate required before applying service actions."
     $map["Services.Start"] = "Service names to start."
@@ -1367,6 +1370,8 @@ function Render-Config {
     [void] $detailsPanel.Children.Add((New-SectionCard -Title "Capabilities" -Description ($schemaMap["Capabilities"]) -Count (@(Get-PropertyValue -Object $capabilities -Names @("Remove")).Count + @(Get-PropertyValue -Object $capabilities -Names @("Others")).Count) -Content $capBody -Theme $theme))
 
     Add-SimpleStringSection -SectionName "Packages" -GroupTitle "Remove" -Items @(Get-PropertyValue -Object (Get-PropertyValue -Object $config -Names @("Packages")) -Names @("Remove")) -SchemaKey "Packages.Remove"
+
+    Add-SimpleStringSection -SectionName "ScheduledTasks" -GroupTitle "Disable" -Items @(Get-PropertyValue -Object (Get-PropertyValue -Object $config -Names @("ScheduledTasks")) -Names @("Disable")) -SchemaKey "ScheduledTasks.Disable"
 
     Add-ServicesSection -Services (Get-PropertyValue -Object $config -Names @("Services"))
     Add-ShortcutsSection -Shortcuts (Get-PropertyValue -Object $config -Names @("Shortcuts"))

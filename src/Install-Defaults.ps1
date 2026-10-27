@@ -225,6 +225,10 @@ try {
         if (($null -ne $ConfigSet.Services.PSObject.Properties['Restart']) -and ($ConfigSet.Services.Restart.Length -gt 0)) {
             Restart-NamedService -Service $ConfigSet.Services.Restart
         }
+
+        if (($null -ne $ConfigSet.ScheduledTasks.PSObject.Properties['Disable']) -and ($ConfigSet.ScheduledTasks.Disable.Length -gt 0)) {
+            Disable-NamedScheduledTask -Task $ConfigSet.ScheduledTasks.Disable
+        }
         #endregion
 
         # Set default user profile settings
