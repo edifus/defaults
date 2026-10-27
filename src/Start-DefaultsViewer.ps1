@@ -109,7 +109,7 @@ function Get-FallbackSchemaMap {
     $map["Services.Stop"] = "Service names to stop."
     $map["Services.Restart"] = "Service names to restart."
     $map["Services.Enable"] = "Service names to set as enabled."
-    $map["Services.Disable"] = "Service names to set the startup type to disabled."
+    $map["Services.Disable"] = "Service names to set as disabled."
 
     $map["Shortcuts"] = "Shortcut editing operations."
     $map["Shortcuts.Edit"] = "Shortcut files to modify and their target arguments."
