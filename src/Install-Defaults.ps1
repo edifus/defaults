@@ -228,8 +228,9 @@ try {
         #endregion
 
         # Set default user profile settings
-        if (($null -ne $ConfigSet.UserRegistry.PSObject.Properties['Set']) -and ($ConfigSet.UserRegistry.Set.Length -gt 0)) {
-            Set-DefaultUserProfile -Setting $ConfigSet.UserRegistry.Set
+        if ((($null -ne $ConfigSet.UserRegistry.PSObject.Properties['Set']) -and ($ConfigSet.UserRegistry.Set.Length -gt 0)) -or
+            (($null -ne $ConfigSet.UserRegistry.PSObject.Properties['Remove']) -and ($ConfigSet.UserRegistry.Remove.Length -gt 0))) {
+            Set-DefaultUserProfile -Setting $ConfigSet.UserRegistry.Set -Remove $ConfigSet.UserRegistry.Remove
         }
     }
     #endregion

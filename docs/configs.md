@@ -83,7 +83,7 @@ Both arrays can be empty in schema terms, but should include applicable values f
 
 * `ChangeOwner` (required): array of objects with required `Root`, `Key`, `Sid`, `note`.
 * `Set` (required): array of objects with required `name`, `note`, `path`, `protected`, `type`, `value`.
-* `Remove` (optional): array of objects with required `path`, `note`.
+* `Remove` (optional): array of objects with required `path`, `note`, and optional `name`. When `name` is specified, only that registry value is removed; otherwise the key at `path` is removed.
 
 `MachineRegistry.Set.type` supports `String`, `DWord`, `Dword`.
 
@@ -91,6 +91,7 @@ Both arrays can be empty in schema terms, but should include applicable values f
 
 * `Set` (required): array of objects with required `name`, `note`, `path`, `protected`, `value`, and either `type` or `Type`.
 * `Others` (optional): array of objects with required `name`, `note`, `path`, `protected`, `type`, `value`.
+* `Remove` (optional): array of objects with required `path`, `note`, and optional `name`. Paths must start with `HKCU:` and are removed from the default user profile. When `name` is specified, only that registry value is removed; otherwise the key at `path` is removed.
 * `Source` (optional): string.
 
 For consistency with existing configs and script logic, use lowercase `type`.
@@ -160,6 +161,7 @@ Use this structure when creating new configuration files so all expected propert
 	"UserRegistry": {
 		"Set": [],
 		"Others": [],
+		"Remove": [],
 		"Source": ""
 	},
 	"Paths": {

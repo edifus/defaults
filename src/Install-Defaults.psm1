@@ -469,12 +469,30 @@ function Set-Registry {
 }
 
 function Remove-RegistryPath {
-    # Set a registry value. Create the target key if it doesn't already exist
+    # Remove a registry key, or a registry value when a value name is specified
     [CmdletBinding(SupportsShouldProcess = $true)]
     param ($Path)
 
     foreach ($Item in $Path) {
-        if ($PSCmdlet.ShouldProcess($Item.path, "Remove-Item")) {
+        if (-not [System.String]::IsNullOrEmpty($Item.name)) {
+            if ($PSCmdlet.ShouldProcess("$($Item.path), $($Item.name)", "Remove-ItemProperty")) {
+                try {
+                    if ($null -ne (Get-ItemProperty -Path $Item.path -Name $Item.name -ErrorAction "SilentlyContinue")) {
+                        $params = @{
+                            Path  = $Item.path
+                            Name  = $Item.name
+                            Force = $true
+                        }
+                        Remove-ItemProperty @params
+                        Write-LogFile -Message "Remove registry value: $($Item.path); $($Item.name)"
+                    }
+                }
+                catch {
+                    Write-LogFile -Message $_.Exception.Message -LogLevel 3
+                }
+            }
+        }
+        elseif ($PSCmdlet.ShouldProcess($Item.path, "Remove-Item")) {
             try {
                 if (Test-Path -Path $Item.path) {
                     $params = @{
@@ -493,9 +511,9 @@ function Remove-RegistryPath {
 }
 
 function Set-DefaultUserProfile {
-    # Add settings into the default profile
+    # Add settings into the default profile, and remove keys or values listed in $Remove
     [CmdletBinding(SupportsShouldProcess = $true)]
-    param ($Setting)
+    param ($Setting, $Remove)
 
     try {
         # Variables
@@ -593,6 +611,17 @@ function Set-DefaultUserProfile {
                     Write-LogFile -Message $_.Exception.Message -LogLevel 3
                 }
             }
+        }
+
+        # Remove registry keys and values from the default profile
+        if ($Remove.Count -gt 0) {
+            $RemoveItems = $Remove | ForEach-Object {
+                [PSCustomObject]@{
+                    path = $_.path -replace "HKCU:", $DefaultUserPath
+                    name = $_.name
+                }
+            }
+            Remove-RegistryPath -Path $RemoveItems
         }
     }
     catch {

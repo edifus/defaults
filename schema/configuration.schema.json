@@ -127,6 +127,10 @@
           "items": {
             "type": "object",
             "properties": {
+              "name": {
+                "type": "string",
+                "description": "Registry value name to remove. When omitted, the registry key at path is removed."
+              },
               "note": {
                 "type": "string"
               },
@@ -140,7 +144,7 @@
               "path"
             ]
           },
-          "description": "Machine registry paths to remove when present."
+          "description": "Machine registry keys or values to remove when present."
         },
         "Set": {
           "type": "array",
@@ -489,6 +493,31 @@
             ]
           },
           "description": "Registry values to set at user scope."
+        },
+        "Remove": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Registry value name to remove. When omitted, the registry key at path is removed."
+              },
+              "note": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string",
+                "pattern": "^HKCU:"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "note",
+              "path"
+            ]
+          },
+          "description": "Default user profile registry keys or values to remove when present."
         },
         "Source": {
           "type": "string",

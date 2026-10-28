@@ -21,7 +21,8 @@
         "Remove": []
     },
     "UserRegistry": {
-        "Set": []
+        "Set": [],
+        "Remove": []
     },
     "Paths": {
         "Remove": []

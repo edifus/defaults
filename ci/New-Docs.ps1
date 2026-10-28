@@ -22,7 +22,7 @@ foreach ($file in $Configs) {
     if ($file.Name -like "_*") { continue }
     $json = Get-Content -Path $file.FullName | ConvertFrom-Json
 
-    if ($json.MachineRegistry.Set.Count -gt 0 -or $json.MachineRegistry.Remove.Count -gt 0 -or $json.UserRegistry.Set.Count -gt 0) {
+    if ($json.MachineRegistry.Set.Count -gt 0 -or $json.MachineRegistry.Remove.Count -gt 0 -or $json.UserRegistry.Set.Count -gt 0 -or $json.UserRegistry.Remove.Count -gt 0) {
         $Markdown += "`n"
         $Markdown += New-MDHeader -Text $file.Name -Level 2
         $Markdown += "`n"
@@ -66,6 +66,13 @@ foreach ($file in $Configs) {
             $Markdown += New-MDHeader -Text "Other User Registry Values (not set)" -Level 3
             $Markdown += "`n"
             $Markdown += $json.UserRegistry.Others | New-MDTable -Shrink
+            $Markdown += "`n"
+        }
+
+        if ($json.UserRegistry.Remove.Count -gt 0) {
+            $Markdown += New-MDHeader -Text "Remove User Registry Values" -Level 3
+            $Markdown += "`n"
+            $Markdown += $json.UserRegistry.Remove | New-MDTable -Shrink
             $Markdown += "`n"
         }
     }

@@ -74,8 +74,9 @@ function Get-FallbackSchemaMap {
     $map["MachineRegistry.Set.value"] = "Registry value data."
     $map["MachineRegistry.Set.protected"] = "Windows protected registry value."
     $map["MachineRegistry.Set.note"] = "Human-readable explanation for this setting."
-    $map["MachineRegistry.Remove"] = "Machine registry paths to remove when present."
+    $map["MachineRegistry.Remove"] = "Machine registry keys or values to remove when present."
     $map["MachineRegistry.Remove.path"] = "Registry path to remove."
+    $map["MachineRegistry.Remove.name"] = "Registry value name to remove. When omitted, the key is removed."
     $map["MachineRegistry.Remove.note"] = "Reason for removing this path."
 
     $map["UserRegistry"] = "Registry operations for HKCU and user-scoped hives."
@@ -89,6 +90,10 @@ function Get-FallbackSchemaMap {
     $map["UserRegistry.Set.protected"] = "Windows protected registry value."
     $map["UserRegistry.Set.note"] = "Human-readable explanation for this setting."
     $map["UserRegistry.Others"] = "Registry values applied for non-default user contexts."
+    $map["UserRegistry.Remove"] = "Default user profile registry keys or values to remove when present."
+    $map["UserRegistry.Remove.path"] = "Registry path to remove."
+    $map["UserRegistry.Remove.name"] = "Registry value name to remove. When omitted, the key is removed."
+    $map["UserRegistry.Remove.note"] = "Reason for removing this path or value."
 
     $map["Paths"] = "Path operations."
     $map["Paths.Remove"] = "File system paths to remove."
@@ -1144,6 +1149,7 @@ function Add-MachineRegistrySection {
 
     Add-GroupFromObjects -Parent $body -Title "Remove" -Items $removeItems -HeaderFactory { param($item) (ConvertTo-DisplayValue (Get-PropertyValue -Object $item -Names @("path", "Path"))) } -Fields @(
         @{ Label = "Path"; Names = @("path", "Path"); SchemaKey = "MachineRegistry.Remove.path" },
+        @{ Label = "Name"; Names = @("name", "Name"); SchemaKey = "MachineRegistry.Remove.name" },
         @{ Label = "Note"; Names = @("note", "Note"); SchemaKey = "MachineRegistry.Remove.note" }
     ) -Prefix "MachineRegistry.Remove"
 
@@ -1158,8 +1164,9 @@ function Add-UserRegistrySection {
 
     $setItems = @(Get-PropertyValue -Object $UserRegistry -Names @("Set"))
     $otherItems = @(Get-PropertyValue -Object $UserRegistry -Names @("Others"))
+    $removeItems = @(Get-PropertyValue -Object $UserRegistry -Names @("Remove"))
     $source = Get-PropertyValue -Object $UserRegistry -Names @("Source")
-    $total = $setItems.Count + $otherItems.Count
+    $total = $setItems.Count + $otherItems.Count + $removeItems.Count
 
     $body = [System.Windows.Controls.StackPanel]::new()
 
@@ -1192,6 +1199,12 @@ function Add-UserRegistrySection {
         @{ Label = "Protected"; Names = @("protected", "Protected"); SchemaKey = "UserRegistry.Set.protected" },
         @{ Label = "Note"; Names = @("note", "Note"); SchemaKey = "UserRegistry.Set.note" }
     ) -Prefix "UserRegistry.Others"
+
+    Add-GroupFromObjects -Parent $body -Title "Remove" -Items $removeItems -HeaderFactory { param($item) (ConvertTo-DisplayValue (Get-PropertyValue -Object $item -Names @("path", "Path"))) } -Fields @(
+        @{ Label = "Path"; Names = @("path", "Path"); SchemaKey = "UserRegistry.Remove.path" },
+        @{ Label = "Name"; Names = @("name", "Name"); SchemaKey = "UserRegistry.Remove.name" },
+        @{ Label = "Note"; Names = @("note", "Note"); SchemaKey = "UserRegistry.Remove.note" }
+    ) -Prefix "UserRegistry.Remove"
 
     $card = New-SectionCard -Title "UserRegistry" -Description ($schemaMap["UserRegistry"]) -Count $total -Content $body -Theme $theme
     [void] $detailsPanel.Children.Add($card)

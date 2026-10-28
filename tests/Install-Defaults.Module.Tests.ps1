@@ -195,6 +195,39 @@ Describe 'Set-Registry' {
     }
 }
 
+Describe 'Remove-RegistryPath' {
+    BeforeEach {
+        $TestRegPath = 'HKCU:\Software\PesterTestRemove'
+        New-Item -Path $TestRegPath -Force | Out-Null
+        New-ItemProperty -Path $TestRegPath -Name 'RemoveMe' -Value 'TestData' -PropertyType 'String' -Force | Out-Null
+        New-ItemProperty -Path $TestRegPath -Name 'KeepMe' -Value 'TestData' -PropertyType 'String' -Force | Out-Null
+    }
+
+    It 'Should remove only the named registry value' {
+        $Path = @(@{ path = $TestRegPath; name = 'RemoveMe'; note = 'Test' })
+        { Remove-RegistryPath -Path $Path -Confirm:$false } | Should -Not -Throw
+        (Get-Item -Path $TestRegPath).GetValueNames() | Should -Not -Contain 'RemoveMe'
+        (Get-Item -Path $TestRegPath).GetValueNames() | Should -Contain 'KeepMe'
+    }
+
+    It 'Should not throw when the named registry value does not exist' {
+        $Path = @(@{ path = $TestRegPath; name = 'DoesNotExist'; note = 'Test' })
+        { Remove-RegistryPath -Path $Path -Confirm:$false } | Should -Not -Throw
+    }
+
+    It 'Should remove the registry key when no value name is specified' {
+        $Path = @(@{ path = $TestRegPath; note = 'Test' })
+        { Remove-RegistryPath -Path $Path -Confirm:$false } | Should -Not -Throw
+        Test-Path -Path $TestRegPath | Should -Be $false
+    }
+
+    AfterAll {
+        if (Test-Path 'HKCU:\Software\PesterTestRemove') {
+            Remove-Item -Path 'HKCU:\Software\PesterTestRemove' -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
+}
+
 Describe 'New-Directory' {
     BeforeAll {
         $TestDirPath = "$env:TEMP\PesterTestDir"
